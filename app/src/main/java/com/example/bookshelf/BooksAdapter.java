@@ -14,9 +14,9 @@ import java.util.HashMap;
 public class BooksAdapter extends BaseAdapter {
 
     Context context;
-    ArrayList<HashMap<String, String>> books;
+    ArrayList<Book> books;
 
-    public BooksAdapter (Context context, ArrayList books) {
+    public BooksAdapter (Context context, ArrayList<Book> books) {
         this.context = context;
         this.books = books;
     }

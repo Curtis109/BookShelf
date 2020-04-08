@@ -17,13 +17,13 @@ import java.util.HashMap;
 public class BookListFragment extends Fragment {
 
     private static final String BOOK_LIST_KEY = "booklist";
-    private ArrayList<HashMap<String, String>> books;
+    private ArrayList<Book> books;
 
     BookSelectedInterface parentActivity;
 
     public BookListFragment() {}
 
-    public static BookListFragment newInstance(ArrayList<HashMap<String, String>> books) {
+    public static BookListFragment newInstance(ArrayList<Book> books) {
         BookListFragment fragment = new BookListFragment();
         Bundle args = new Bundle();
 

@@ -15,13 +15,13 @@ import java.util.HashMap;
 public class BookDetailsFragment extends Fragment {
 
     private static final String BOOK_KEY = "book";
-    private HashMap<String, String> book;
+    private Book book;
 
     TextView titleTextView, authorTextView;
 
     public BookDetailsFragment() {}
 
-    public static BookDetailsFragment newInstance(HashMap<String, String> book) {
+    public static BookDetailsFragment newInstance(Book book) {
         BookDetailsFragment fragment = new BookDetailsFragment();
         Bundle args = new Bundle();
 
@@ -39,7 +39,7 @@ public class BookDetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            book = (HashMap) getArguments().getSerializable(BOOK_KEY);
+            book = (Book) getArguments().getSerializable(BOOK_KEY);
         }
     }
 
@@ -65,8 +65,8 @@ public class BookDetailsFragment extends Fragment {
     This method is used both internally and externally (from the activity)
     to display a book
      */
-    public void displayBook(HashMap<String, String> book) {
-        titleTextView.setText(book.get("title"));
-        authorTextView.setText(book.get("author"));
+    public void displayBook(Book book) {
+        titleTextView.setText(book.getTitle());
+        authorTextView.setText(book.getAuthor());
     }
 }
