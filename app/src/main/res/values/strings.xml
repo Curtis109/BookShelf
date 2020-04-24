@@ -1,29 +1,5 @@
 <resources>
     <string name="app_name">BookShelf</string>
-    <string-array name="bookTitles">
-        <item>Where the Wild Things Are</item>
-        <item>The Very Hungry Caterpillar</item>
-        <item>Goodnight Moon</item>
-        <item>The Giving Tree</item>
-        <item>The Secret Garden</item>
-        <item>The Cat in the Hat</item>
-        <item>Little Women</item>
-        <item>A Chair For My Mother</item>
-        <item>Frog and Toad Are Friends</item>
-        <item>The Giver</item>
-        <item>Go, Dog. Go!</item>
-    </string-array>
-    <string-array name="bookAuthors">
-        <item>Maurice Sendak</item>
-        <item>Eric Carle</item>
-        <item>Margaret Brown</item>
-        <item>Shel Silvers</item>
-        <item>Frances Hodgson Burnett</item>
-        <item>Dr.Seuss</item>
-        <item>Louisa May</item>
-        <item>Vera Williams</item>
-        <item>Arnold Lobel</item>
-        <item>Lois Lowry</item>
-        <item>P.D. Eastman</item>
-    </string-array>
+    <string name="search_error_message">No results matched your search</string>
+    <string name="form_search_button">Search</string>
 </resources>
