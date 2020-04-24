@@ -93,4 +93,5 @@ public class BookListFragment extends Fragment {
     interface BookSelectedInterface {
         void bookSelected(int index);
     }
+
 }

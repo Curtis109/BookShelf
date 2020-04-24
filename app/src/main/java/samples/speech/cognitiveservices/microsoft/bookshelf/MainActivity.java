@@ -3,8 +3,14 @@ package samples.speech.cognitiveservices.microsoft.bookshelf;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -21,10 +27,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.temple.audiobookplayer.AudiobookService;
+
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
 
     private static final String BOOKS_KEY = "books";
     private static final String SELECTED_BOOK_KEY = "selectedBook";
+
+    Intent serviceIntent;
+    boolean connected;
+    AudiobookService audiobookService;
+    AudiobookService.MediaControlBinder mediaControlBinder;
+    Handler handler;
 
     FragmentManager fm;
 
@@ -40,6 +54,21 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     private final String SEARCH_API = "https://kamorris.com/lab/abp/booksearch.php?search=";
 
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            connected = true;
+            mediaControlBinder = (AudiobookService.MediaControlBinder) service;
+            mediaControlBinder.setProgressHandler(handler);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mediaControlBinder = null;
+            connected = false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         searchEditText = findViewById(R.id.searchEditText);
 
+        serviceIntent = new Intent(MainActivity.this, AudiobookService.class);
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
         /*
         Perform a search
          */
@@ -56,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 fetchBooks(searchEditText.getText().toString());
             }
         });
+
 
         /*
         If we previously saved a book search and/or selected a book, then use that
@@ -190,5 +222,15 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         // Save previously searched books as well as selected book
         outState.putParcelableArrayList(BOOKS_KEY, books);
         outState.putParcelable(SELECTED_BOOK_KEY, selectedBook);
+    }
+    public void playSelectedBook(Book book){
+        //Toast.makeText(MainActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
+        if(connected){
+            mediaControlBinder.play(book.getId());
+        }
+        else{
+            Toast.makeText(MainActivity.this, "You are not connected to the Audio Stream Service.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

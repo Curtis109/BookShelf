@@ -7,12 +7,16 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+
+import edu.temple.audiobookplayer.AudiobookService;
 
 
 public class BookDetailsFragment extends Fragment {
@@ -51,11 +55,21 @@ public class BookDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_book_details, container, false);
-
+        Button playButton = (Button) v.findViewById(R.id.buttonPlay);
         titleTextView = v.findViewById(R.id.titleTextView);
         authorTextView = v.findViewById(R.id.authorTextView);
         coverImageView = v.findViewById(R.id.coverImageView);
-
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(book != null){
+                    ((MainActivity)getActivity()).playSelectedBook(book);
+                }
+                else{
+                    Toast.makeText(getActivity(), "Please select a book.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         /*
         Because this fragment can be created with or without
         a book to display when attached, we need to make sure
@@ -63,6 +77,7 @@ public class BookDetailsFragment extends Fragment {
          */
         if (book != null)
             displayBook(book);
+
         return v;
     }
 
