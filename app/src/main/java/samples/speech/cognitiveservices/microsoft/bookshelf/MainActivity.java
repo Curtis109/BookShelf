@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     Book selectedBook;
 
     EditText searchEditText;
+    TextView playingNow;
     Button pauseButton;
     Button stopButton;
 
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        playingNow = findViewById(R.id.nowPlaying);
         searchEditText = findViewById(R.id.searchEditText);
 
         serviceIntent = new Intent(MainActivity.this, AudiobookService.class);
@@ -317,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             mediaControlBinder.play(book.getId());
             maxValue = book.getDuration();
             progressSeekbar.setMax(maxValue);
+            playingNow.setText("Now Playing: " + book.getTitle());
             startService(serviceIntent);
         }
         else{
