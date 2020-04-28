@@ -63,7 +63,7 @@ public class BookDetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(book != null){
-                    ((MainActivity)getActivity()).playSelectedBook(book);
+                    ((MainActivity)getActivity()).playSelectedBook();
                 }
                 else{
                     Toast.makeText(getActivity(), "Please select a book.", Toast.LENGTH_SHORT).show();

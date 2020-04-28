@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     private static final String BOOKS_KEY = "books";
     private static final String SELECTED_BOOK_KEY = "selectedBook";
+    private static final String NOW_PLAYING_BOOK_KEY = "bookNowPlaying";
+    private static final String BOOK_POSITION_KEY = "bookPosition";
 
     Intent serviceIntent;
     boolean connected;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     SeekBar progressSeekbar;
     int maxValue;
     int currentProgress;
+    String whatPlaying;
     Runnable runnable;
     Message message;
 
@@ -175,6 +178,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         if (savedInstanceState != null) {
             books = savedInstanceState.getParcelableArrayList(BOOKS_KEY);
             selectedBook = savedInstanceState.getParcelable(SELECTED_BOOK_KEY);
+            whatPlaying = savedInstanceState.getString(NOW_PLAYING_BOOK_KEY);
+            currentProgress = savedInstanceState.getInt(BOOK_POSITION_KEY);
+
+            playingNow.setText("Now Playing: " + whatPlaying);
+            maxValue = selectedBook.getDuration();
+            progressSeekbar.setMax(maxValue);
+            progressSeekbar.setProgress(currentProgress);
+
         }
         else
             books = new ArrayList<Book>();
@@ -312,15 +323,18 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         // Save previously searched books as well as selected book
         outState.putParcelableArrayList(BOOKS_KEY, books);
         outState.putParcelable(SELECTED_BOOK_KEY, selectedBook);
+        outState.putString(NOW_PLAYING_BOOK_KEY, whatPlaying);
+        outState.putInt(BOOK_POSITION_KEY, currentProgress);
     }
-    public void playSelectedBook(Book book){
+    public void playSelectedBook(){
         //Toast.makeText(MainActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
 
         if(connected){
-            mediaControlBinder.play(book.getId());
-            maxValue = book.getDuration();
+            mediaControlBinder.play(selectedBook.getId());
+            maxValue = selectedBook.getDuration();
             progressSeekbar.setMax(maxValue);
-            playingNow.setText("Now Playing: " + book.getTitle());
+            whatPlaying = selectedBook.getTitle();
+            playingNow.setText("Now Playing: " + whatPlaying);
             startService(serviceIntent);
         }
         else{
@@ -330,7 +344,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
     public void updateSeekbar(int newProgress){
 
-        progressSeekbar.setProgress(newProgress);
+        currentProgress = newProgress;
+        progressSeekbar.setProgress(currentProgress);
     }
 }
 
