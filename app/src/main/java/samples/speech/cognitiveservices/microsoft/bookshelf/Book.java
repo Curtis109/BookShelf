@@ -79,7 +79,7 @@ public class Book implements Parcelable {
         this.coverUrl = coverUrl;
     }
 
-    public int getDuration(int duration){
+    public int getDuration(){
         return duration;
     }
 

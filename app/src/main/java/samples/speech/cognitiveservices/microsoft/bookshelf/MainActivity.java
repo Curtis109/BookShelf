@@ -1,17 +1,22 @@
 package samples.speech.cognitiveservices.microsoft.bookshelf;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaSync;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -27,6 +32,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.security.auth.callback.Callback;
+
 import edu.temple.audiobookplayer.AudiobookService;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
@@ -36,9 +43,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     Intent serviceIntent;
     boolean connected;
+    boolean isPlayingCheck;
     AudiobookService audiobookService;
     AudiobookService.MediaControlBinder mediaControlBinder;
-    Handler handler;
+    AudiobookService.BookProgress progress;
+
+    SeekBar progressSeekbar;
+    int maxValue;
+    int currentProgress;
+    Runnable runnable;
+    Message message;
 
     FragmentManager fm;
 
@@ -51,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     Book selectedBook;
 
     EditText searchEditText;
+    Button pauseButton;
+    Button stopButton;
+
 
     private final String SEARCH_API = "https://kamorris.com/lab/abp/booksearch.php?search=";
 
@@ -68,6 +85,18 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             connected = false;
         }
     };
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message message) {
+
+            if (mediaControlBinder.isPlaying()) {
+                updateSeekbar(((AudiobookService.BookProgress) message.obj).getProgress());
+            }
+            return false;
+        }
+    });
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +117,53 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         });
 
+        pauseButton = (Button) findViewById(R.id.buttonPause);
+        pauseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                mediaControlBinder.pause();
+                isPlayingCheck = mediaControlBinder.isPlaying();
+                if(isPlayingCheck){
+                    pauseButton.setText("Pause");
+                }
+                else{
+                    pauseButton.setText("Unpause");
+                }
+            }
+        });
+
+        stopButton = (Button) findViewById(R.id.buttonStop);
+        stopButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                mediaControlBinder.stop();
+                progressSeekbar.setProgress(0);
+                stopService(serviceIntent);
+            }
+        });
+
+        progressSeekbar = (SeekBar) findViewById(R.id.seekBar);
+        progressSeekbar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        if(fromUser){
+                            mediaControlBinder.seekTo(progress);
+                        }
+
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                }
+        );
 
         /*
         If we previously saved a book search and/or selected a book, then use that
@@ -144,10 +220,21 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         }
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        connected = true;
+    }
 
     /*
-    Fetch a set of "books" from from the web service API
-     */
+        Fetch a set of "books" from from the web service API
+         */
     private void fetchBooks(String searchString) {
         /*
         A Volloy JSONArrayRequest will automatically convert a JSON Array response from
@@ -225,12 +312,22 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
     public void playSelectedBook(Book book){
         //Toast.makeText(MainActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
+
         if(connected){
             mediaControlBinder.play(book.getId());
+            maxValue = book.getDuration();
+            progressSeekbar.setMax(maxValue);
+            startService(serviceIntent);
         }
         else{
             Toast.makeText(MainActivity.this, "You are not connected to the Audio Stream Service.", Toast.LENGTH_SHORT).show();
         }
 
     }
+    public void updateSeekbar(int newProgress){
+
+        progressSeekbar.setProgress(newProgress);
+    }
 }
+
+
